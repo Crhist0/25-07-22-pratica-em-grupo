@@ -1,6 +1,6 @@
-import { Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getPokemon } from "../../services/api";
 
 type TPokemon = {
@@ -9,26 +9,37 @@ type TPokemon = {
 
 function Home() {
   const [pokemon, setPokemon] = useState<TPokemon>({} as TPokemon);
+  const [name, setName] = useState<string | number>("")
 
-  useEffect(()=>{
-    const get = async()=>{
-      const response = await getPokemon(11);
-      setPokemon(response);
-    }
-    get();
-  },[])
+  const get = async()=>{
+    const response = await getPokemon(name);
+    setPokemon(response);
+  }  
 
   useEffect(()=>{
     console.log(pokemon);
   },[pokemon])
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value)        
+  }
+
+  useEffect(()=>{
+    console.log(name);
+  },[name])
 
   return (
     <>
+    <TextField
+  id="outlined-name"
+  label="Name"
+  value={name} 
+  onChange={handleChange}
+/>
     <Typography variant="body2">
       {pokemon?.name}
     </Typography>
-      <Button variant="contained">Pesquisar</Button>
+      <Button variant="contained" onClick={get}>Pesquisar</Button>
     </>
   );
 }
