@@ -1,4 +1,4 @@
-import { TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,8 +33,10 @@ function Home() {
   }
 
   return (
-    <>
-      <TextField
+    <Box className="flex flex-col p-10 justify-center items-center" >
+      <TextField 
+        className="mb-[10px] " 
+        InputProps={{className: 'rounded-full'}}
         id="outlined-name"
         label="Name"
         value={name}
@@ -54,7 +56,7 @@ function Home() {
       <Button variant="contained" onClick={get}>
         Pesquisar
       </Button>
-    </>
+    </Box>
   );
 }
 
