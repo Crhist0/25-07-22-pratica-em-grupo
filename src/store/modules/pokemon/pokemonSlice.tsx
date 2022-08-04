@@ -1,9 +1,16 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { getPokemon } from "../../../services/api";
+import { State } from "../rootReducer";
+
+export type TNewPokemon = {
+  name: string,
+  url: string
+}
 
 type TPokemon = {
   name?: string;
+  id: number;
   moves?: {
     move: {
       name: string;
@@ -23,9 +30,18 @@ type TPokemon = {
   }[];
 };
 
-const initialState: { loading: boolean; pokemon: TPokemon } = {
+const entityAdapter = createEntityAdapter({
+  selectId: (pokemon: TNewPokemon) => pokemon.name,
+})
+
+export const { selectAll, selectById } = entityAdapter.getSelectors(
+  ({ pokemon }: State) => pokemon.pokemons
+);
+
+const initialState: { loading: boolean; pokemon: TPokemon, pokemons: EntityState<TNewPokemon> } = {
   loading: false,
-  pokemon: {},
+  pokemon: {} as TPokemon,
+  pokemons: entityAdapter.getInitialState(),
 };
 
 export const fetchPokemon = createAsyncThunk(
@@ -33,10 +49,23 @@ export const fetchPokemon = createAsyncThunk(
   async ({ value }: { value: string | number }, { dispatch }) => {
     const data = (await getPokemon(value)) as AxiosResponse;
 
-    if (data?.status == 200) {
+    if (data?.status === 200) {
       return data.data;
     }
-    // Forma de rejeitar uma promisse
+    // Forma de rejeitar uma promise
+    throw new Error("Deu ruim");
+  }
+);
+
+export const fetchPokemons = createAsyncThunk(
+  "pokemon/fetchPokemons",
+  async (_, { dispatch }) => {
+    const data = (await getPokemon()) as AxiosResponse;
+
+    if (data?.status === 200) {
+      return data.data;
+    }
+    // Forma de rejeitar uma promise
     throw new Error("Deu ruim");
   }
 );
@@ -51,6 +80,9 @@ const slice = createSlice({
     updateLoading(state, action) {
       state.loading = action.payload;
     },
+    updatePokemonName(state, { payload }){
+      state.pokemons = entityAdapter.updateOne(state.pokemons, payload)
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(fetchPokemon.pending, (state) => {
@@ -66,8 +98,12 @@ const slice = createSlice({
 
       alert("Deu ruim!");
     });
+
+    addCase(fetchPokemons.fulfilled, (state, { payload }) => {
+      state.pokemons = entityAdapter.setAll(state.pokemons, payload.results);
+    });
   },
 });
 
-export const { setPokemon, updateLoading } = slice.actions;
+export const { setPokemon, updateLoading,updatePokemonName } = slice.actions;
 export default slice.reducer;

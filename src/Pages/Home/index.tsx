@@ -1,28 +1,38 @@
 import { Box, TextField, Typography, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPokemon } from "../../services/api";
 import { AppDispatch } from "../../store";
 import {
   fetchPokemon,
-  updateLoading,
+  fetchPokemons,
+  selectAll,
+  updatePokemonName,
 } from "../../store/modules/pokemon/pokemonSlice";
 import { State } from "../../store/modules/rootReducer";
 
 function Home() {
-  // const [pokemon, setPokemon] = useState<TPokemon>({});
   const [name, setName] = useState<string | number>("");
   const { pokemon, loading } = useSelector((state: State) => state.pokemon);
+  const pokemons = useSelector(selectAll)
   const dispatch = useDispatch<AppDispatch>();
 
   const get = () => {
-    dispatch(fetchPokemon({ value: name }));
+    if(name){
+      return dispatch(fetchPokemon({ value: name }));
+    }
+    dispatch(fetchPokemons());
   };
 
-  // useEffect(() => {
-
-  // }, [pokemon]);
+  const update = () => {
+    dispatch(updatePokemonName({
+      id: 'raticate',
+      changes: {
+        name
+      }
+    })
+    )
+  }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -34,8 +44,8 @@ function Home() {
 
   return (
     <Box className="flex flex-col p-10 justify-center items-center" >
-      <TextField 
-        className="mb-[10px] " 
+      <TextField
+        className="mb-[10px] "
         InputProps={{className: 'rounded-full'}}
         id="outlined-name"
         label="Name"
@@ -45,6 +55,10 @@ function Home() {
 
       <Button variant="contained" onClick={get}>
         Pesquisar
+      </Button>
+
+      <Button variant="contained" onClick={update}>
+        atualizar
       </Button>
 
       <Paper className=" tablet:bg-stone-700 desktop:bg-stone-900 w-full md:w-96 lg:w-64 p-8 mt-6 rounded-md text-center">
@@ -62,6 +76,16 @@ function Home() {
           ))
         }
       </Paper>
+
+      {pokemons &&
+        pokemons.map((pokemon) =>{
+          return (
+            <Typography variant="body1" key={pokemon.name}>
+              {pokemon.name}
+            </Typography>
+          )
+        })
+      }
 
     </Box>
   );
