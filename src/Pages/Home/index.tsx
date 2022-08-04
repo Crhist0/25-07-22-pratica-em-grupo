@@ -1,4 +1,4 @@
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,20 +42,27 @@ function Home() {
         value={name}
         onChange={handleChange}
       />
-      <Typography variant="body2">{pokemon?.name}</Typography>
 
-      {pokemon?.moves
-        ?.filter((move) => move?.version_group_details[0]?.level_learned_at > 0)
-        .map((move) => (
-          <Typography key={move.move.name}>
-            {move.move.name +
-              ` - ` +
-              move.version_group_details[0].level_learned_at}
-          </Typography>
-        ))}
       <Button variant="contained" onClick={get}>
         Pesquisar
       </Button>
+
+      <Paper className=" tablet:bg-stone-700 desktop:bg-stone-900 w-full md:w-96 lg:w-64 p-8 mt-6 rounded-md text-center">
+        <Typography className="text-[#2E86AB] hover:text-[#226581] mb-8" variant="h3">
+          {pokemon?.name}
+        </Typography>
+        {pokemon?.moves
+          ?.filter((move) => move?.version_group_details[0]?.level_learned_at > 0)
+          .map((move) => (
+            <Typography key={move.move.name}>
+              {move.move.name +
+                ` - ` +
+                move.version_group_details[0].level_learned_at}
+            </Typography>
+          ))
+        }
+      </Paper>
+
     </Box>
   );
 }
