@@ -30,8 +30,8 @@ type TPokemon = {
   }[];
 };
 
-const entityAdapter = createEntityAdapter({
-  selectId: (pokemon: TNewPokemon) => pokemon.name,
+const entityAdapter = createEntityAdapter<TNewPokemon>({
+  selectId: (pokemon) => pokemon.name,
 })
 
 export const { selectAll, selectById } = entityAdapter.getSelectors(
