@@ -1,12 +1,17 @@
-import { createSlice, createAsyncThunk, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  createEntityAdapter,
+  EntityState,
+} from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { getPokemon } from "../../../services/api";
 import { State } from "../rootReducer";
 
 export type TNewPokemon = {
-  name: string,
-  url: string
-}
+  name: string;
+  url: string;
+};
 
 type TPokemon = {
   name?: string;
@@ -30,15 +35,19 @@ type TPokemon = {
   }[];
 };
 
-const entityAdapter = createEntityAdapter<TNewPokemon>({
-  selectId: (pokemon) => pokemon.name,
-})
+const entityAdapter = createEntityAdapter<TPokemon>({
+  selectId: (pokemon) => pokemon.id,
+});
 
 export const { selectAll, selectById } = entityAdapter.getSelectors(
   ({ pokemon }: State) => pokemon.pokemons
 );
 
-const initialState: { loading: boolean; pokemon: TPokemon, pokemons: EntityState<TNewPokemon> } = {
+const initialState: {
+  loading: boolean;
+  pokemon: TPokemon;
+  pokemons: EntityState<TPokemon>;
+} = {
   loading: false,
   pokemon: {} as TPokemon,
   pokemons: entityAdapter.getInitialState(),
@@ -63,7 +72,21 @@ export const fetchPokemons = createAsyncThunk(
     const data = (await getPokemon()) as AxiosResponse;
 
     if (data?.status === 200) {
-      return data.data;
+      // console.log("Quase deu certo");
+      const listPokemon: TPokemon[] = [];
+
+      // const asyncRes = await Promise.all(arr.map(async (i) => {
+      //   await sleep(10);
+      //   return i + 1;
+      // }));
+
+      const asyncRes = await Promise.all(
+        data.data.results.map((pokemon: TNewPokemon) =>
+          getPokemon(pokemon.name)
+        )
+      );
+
+      return asyncRes.map((item) => item.data);
     }
     // Forma de rejeitar uma promise
     throw new Error("Deu ruim");
@@ -80,9 +103,9 @@ const slice = createSlice({
     updateLoading(state, action) {
       state.loading = action.payload;
     },
-    updatePokemonName(state, { payload }){
-      state.pokemons = entityAdapter.updateOne(state.pokemons, payload)
-    }
+    updatePokemonName(state, { payload }) {
+      state.pokemons = entityAdapter.updateOne(state.pokemons, payload);
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(fetchPokemon.pending, (state) => {
@@ -100,10 +123,10 @@ const slice = createSlice({
     });
 
     addCase(fetchPokemons.fulfilled, (state, { payload }) => {
-      state.pokemons = entityAdapter.setAll(state.pokemons, payload.results);
+      state.pokemons = entityAdapter.setAll(state.pokemons, payload);
     });
   },
 });
 
-export const { setPokemon, updateLoading,updatePokemonName } = slice.actions;
+export const { setPokemon, updateLoading, updatePokemonName } = slice.actions;
 export default slice.reducer;
