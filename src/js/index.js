@@ -4,7 +4,7 @@
 // Crie uma nova lista somente com os números ímpares e usando o
 // filter
 const listaInicial = [
-    8, 72,
+    8, 72, 1, 37, 21, 54, 7, 81, 23, 92, 12, 87, 3, 12, 6, 4
 ];
 const listaImpares = listaInicial.filter((item) => item % 2);
 console.log("===LISTA ÍMPARES=== \n", listaImpares);
@@ -19,3 +19,19 @@ console.log("=== SOMA === \n", listaSoma);
 // idades diferentes e por fim crie uma nova lista a partir dessa lista
 // inicial utilizando o filter somente com as pessoas que possuem a
 // idade menor que 23.
+class Pessoa {
+    constructor(nome, idade) {
+        this.nome = nome;
+        this.idade = idade;
+    }
+}
+const pessoasLista = [
+    new Pessoa("Antonio", 38),
+    new Pessoa("João", 20),
+    new Pessoa("BoraBill", 40),
+    new Pessoa("Pedrinho", 35),
+    new Pessoa("FidoBill", 5),
+    new Pessoa("MulherdoBill", 22),
+];
+const pessoasMenos23 = pessoasLista.filter(pessoa => pessoa.idade < 23);
+console.log(`As pessoas com menos de 23 anos são: \n`, pessoasMenos23);
